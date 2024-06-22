@@ -14,7 +14,7 @@ numSite <- as.numeric(args[3])
 
 
 ########################################
-params <- fromJSON(file='/usr3/graduate/mkmoon/GitHub/PlanetLSP/data_paper/PLSP_Parameters.json')
+params <- fromJSON(file='/usr3/graduate/mkmoon/GitHub/mangrove/input/PLCM_Parameters.json')
 source(params$setup$rFunctions)
 
 productTable <- read.csv(params$setup$productTable,header=T,stringsAsFactors = F)

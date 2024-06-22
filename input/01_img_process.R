@@ -59,15 +59,15 @@ for(i in 1:length(dfileSR)){
 dates_all <- as.Date(paste(mm,'/',dd,'/',yy,sep=''),'%m/%d/%y')
 dates <- unique(dates_all)
 
-# #
-# datesod <- order(dates)
-# setwd('/projectnb/modislc/users/mkmoon/mangrove/figures/')
-# png(filename='numofimage.png',width=7.5,height=6.5,unit='in',res=300)
-# par(oma=c(1,1,1,1),mar=c(4,4,1,1),mgp=c(2.5,1,0))
-# plot(dates[datesod],
-#      xlab='Number of Image',ylab='Dates',cex.axis=1.2,cex.lab=1.5)
-# dev.off()
-# #
+#
+datesod <- order(dates)
+setwd('/projectnb/modislc/users/mkmoon/mangrove/figures/')
+png(filename='numofimage.png',width=7.5,height=6.5,unit='in',res=300)
+par(oma=c(1,1,1,1),mar=c(4,4,1,1),mgp=c(2.5,1,0))
+plot(dates[datesod],
+     xlab='Number of Image',ylab='Dates',cex.axis=1.2,cex.lab=1.5)
+dev.off()
+#
 
 print(length(dates))
 

@@ -44,7 +44,7 @@ load(file)
 numPix <- dim(band1)[1]
 phenYrs <- params$setup$phenStartYr:params$setup$phenEndYr
 
-f_mat <- matrix(NA,numPix,24*length(phenYrs))
+f_mat <- matrix(NA,numPix,58*length(phenYrs))
 
 for (i in 1:numPix){
 
@@ -55,10 +55,10 @@ for (i in 1:numPix){
 
 
 # Save
-ckPheDir <- paste0(params$setup$outDir,strSite,'/chunk_phe')
+ckPheDir <- paste0(params$setup$outDir,strSite,'/chunk_feat')
 if (!dir.exists(ckPheDir)) {dir.create(ckPheDir)}
 
-save(pheno_mat,file=paste0(ckPheDir,'/chunk_phe_',ckNum,'.rda'))
+save(f_mat,file=paste0(ckPheDir,'/chunk_feat_',ckNum,'.rda'))
 
 
 
