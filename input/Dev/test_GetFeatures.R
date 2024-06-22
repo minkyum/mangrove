@@ -1,16 +1,18 @@
+library(sp)
 library(raster)
-library(rgdal)
-library(gdalUtils)
+library(terra)
+library(sf)
 
 library(rjson)
+library(geojsonR)
 
-numSite <- 36; cc <- 50
-
+numSite <- 1; cc <- 50
 
 
 ########################################
-params <- fromJSON(file='/usr3/graduate/mkmoon/GitHub/PlanetLSP/data_paper/PLSP_Parameters.json')
+params <- fromJSON(file='/usr3/graduate/mkmoon/GitHub/mangrove/input/PLCM_Parameters.json')
 source(params$setup$rFunctions)
+
 
 ########################################
 ## Get site name, image directory and coordinate
@@ -18,7 +20,6 @@ strSite <- list.dirs(params$setup$outDir,full.names=F,recursive=F)[numSite]
 print(strSite)
 
 ckDir <- paste0(params$setup$outDir,strSite,'/chunk')
-ckDir <- paste0('/projectnb/modislc/users/mkmoon/Planet/rawImage/chunks/',strSite)
 print(ckDir)
 
 ckNum <- sprintf('%03d',cc)
@@ -27,6 +28,7 @@ file <- list.files(path=ckDir,pattern=glob2rx(paste0('*',ckNum,'.rda')),full.nam
 load(file)
 
 
+##
 pp <- 31
 
 blue  <- band1[pp,]
@@ -35,24 +37,10 @@ red   <- band3[pp,]
 nir   <- band4[pp,]
 phenYrs <- params$setup$phenStartYr:params$setup$phenEndYr
 
-## Load water mask
-waterRater <- raster(paste0(params$setup$outDir,'Allequash_Creek_Site/water_mask_30.tif'))
-
-cc <- 50
-numCk <- params$setup$numChunks
-chunk <- length(waterRater)%/%numCk
-if(cc==numCk){
-  chunks <- c((chunk*(cc-1)+1):length(waterRater))
-}else{
-  chunks <- c((chunk*(cc-1)+1):(chunk*cc))
-}
-waterMask <- values(waterRater)[chunks][pp]
-
-
 
 
 ########################################
-DoPhenologyPlanet <- function(blue, green, red, nir, dates, phenYrs, params, waterMask){
+GetFeatures <- function(blue, green, red, nir, dates, phenYrs, params){
   
   # Despike, calculate dormant value, fill negative VI values with dormant value
   log <- try({    
@@ -61,12 +49,11 @@ DoPhenologyPlanet <- function(blue, green, red, nir, dates, phenYrs, params, wat
     qa_pars    <- params$qa_parameters
     
     blue <- blue/10000; green <- green/10000; red <- red/10000; nir <- nir/10000
-    vi   <- 2.5*(nir - red) / (nir + 2.4*red + 1)
     
-    
-    # Potential water
-    if( sum(vi<0,na.rm=T)/sum(!is.na(vi)) > pheno_pars$sumNegVIthresh & waterMask > pheno_pars$waterOccuThreshLow ){
-      return(rep(c(NA,rep(NA,10),4,rep(NA,10),4,NA),length(phenYrs)))} 
+    i1   <- (nir - red) / (nir + red) # NDVI
+    i2   <- 2.5*(nir - red) / (nir + 2.4*red + 1) # EVI2
+    i3   <- (nir - green) / (nir + green) # GNDVI
+    i4   <- (green - nir) / (green + nir) # NDWI
     
     
     # Spikes check, and remove

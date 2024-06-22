@@ -4,22 +4,18 @@
     "phenStartYr":2018,
     "phenEndYr":2023,
     
-    "workDir":"/projectnb/modislc/users/mkmoon/mangrove/PLSP/",
+    "workDir":"/projectnb/modislc/users/mkmoon/mangrove/PLCM/",
     "logDir":"/projectnb/modislc/users/mkmoon/mangrove/runLogs/",
     "geojsonDir":"/projectnb/modislc/users/mkmoon/mangrove/geojson/",
     "dataDir":"/projectnb/modislc/users/mkmoon/mangrove/raw",
     "outDir":"/projectnb/modislc/users/mkmoon/mangrove/Img_cliped/",
     "rScripts":"/usr3/graduate/mkmoon/GitHub/mangrove/input/",
-    "rFunctions":"/usr3/graduate/mkmoon/GitHub/mangrove/input/PLSP_Functions.R",
-    "productTable":"/usr3/graduate/mkmoon/GitHub/mangrove/input/PLSP_Layers.csv",
-    
-    "water":"/projectnb/modislc/data/water/GSWD",
+    "rFunctions":"/usr3/graduate/mkmoon/GitHub/mangrove/input/PLCM_Functions.R",
+    "productTable":"/usr3/graduate/mkmoon/GitHub/mangrove/input/PLCM_Layers.csv",
     
     "numChunks":200,
-    "numCores":28,
+    "numCores":28
     
-    "neon":true
-   
   },
   
   "phenology_parameters":{

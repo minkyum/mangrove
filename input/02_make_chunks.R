@@ -19,22 +19,13 @@ cc      <- as.numeric(substr(args[3],4,6))
 
 
 ###############################
-params <- fromJSON(file='/usr3/graduate/mkmoon/GitHub/PlanetLSP/data_paper/PLSP_Parameters.json')
+params <- fromJSON(file='/usr3/graduate/mkmoon/GitHub/mangrove/input/PLCM_Parameters.json')
 source(params$setup$rFunctions)
+
 
 
 ########################################
 ## Get site name and image directory
-# geojsonDir <- params$setup$geojsonDir
-# 
-# siteInfo <- GetSiteInfo(numSite,geojsonDir,params)
-# 
-# strSite <- siteInfo[[2]]
-# print(strSite)
-# 
-# imgDir <- paste0(params$setup$outDir,strSite,'/mosaic')
-# print(imgDir)
-
 strSite <- list.dirs(params$setup$outDir,full.names=F,recursive=F)[numSite]
 print(strSite)
 
@@ -56,14 +47,13 @@ dates <- unique(dates_all)
 
 print(length(dates))
 
-# Divide in to chunks
+# Divide into chunks
 imgBase <- raster(paste0(params$setup$outDir,strSite,'/base_image.tif'))
 
 numCk <- params$setup$numChunks
 chunk <- length(imgBase)%/%numCk
 
 ckDir <- paste0(params$setup$outDir,strSite,'/chunk')
-# ckDir <- paste0('/projectnb/modislc/users/mkmoon/Planet/rawImage/chunks/',strSite)
 if (!dir.exists(ckDir)) {dir.create(ckDir)}
 
 
@@ -73,11 +63,6 @@ if(cc==numCk){
 }else{
   chunks <- c((chunk*(cc-1)+1):(chunk*cc))
 }
-
-# band1 <- foreach(i=1:length(dates),.combine='cbind') %dopar% { values(raster(files[i],1))[chunks] }
-# band2 <- foreach(i=1:length(dates),.combine='cbind') %dopar% { values(raster(files[i],2))[chunks] }
-# band3 <- foreach(i=1:length(dates),.combine='cbind') %dopar% { values(raster(files[i],3))[chunks] }
-# band4 <- foreach(i=1:length(dates),.combine='cbind') %dopar% { values(raster(files[i],4))[chunks] }
 
 band1 <- matrix(NA,length(chunks),length(dates))
 band2 <- matrix(NA,length(chunks),length(dates))

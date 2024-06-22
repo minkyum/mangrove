@@ -18,11 +18,8 @@ numSite <- as.numeric(args[3])
 
 
 ###############################
-params <- fromJSON(file='/usr3/graduate/mkmoon/GitHub/PlanetLSP/data_paper/PLSP_Parameters.json')
+params <- fromJSON(file='/usr3/graduate/mkmoon/GitHub/mangrove/input/PLCM_Parameters.json')
 source(params$setup$rFunctions)
-
-params$setup$neon  <- FALSE
-params$setup$amflx <- FALSE
 
 
 ########################################
@@ -36,27 +33,20 @@ print(paste(strSite,';',imgDir))
 
 cLong <- siteInfo[[3]];cLat <- siteInfo[[4]]
 print(paste(cLong,';',cLat))
-# cLong <- 115.210853
-# cLat  <- -8.751338
-cLong <- 127.11632
-cLat  <- 36.56963
+cLong <- 115.20700
+cLat  <- -8.751338
 
 
 ########################################
 ## List of files
 dfileSR   <- list.files(path=imgDir,pattern=glob2rx('*MS_SR*.tif'),recursive=T)
-dfileUDM  <- list.files(path=imgDir,pattern=glob2rx('*_DN_udm*.tif'),recursive=T)
 dfileUDM2 <- list.files(path=imgDir,pattern=glob2rx('*_udm2*.tif'),recursive=T)
 
 fileSR   <- list.files(path=imgDir,pattern=glob2rx('*MS_SR*.tif'),recursive=T,full.names=T)
-fileUDM  <- list.files(path=imgDir,pattern=glob2rx('*_DN_udm*.tif'),recursive=T,full.names=T)
 fileUDM2 <- list.files(path=imgDir,pattern=glob2rx('*_udm2*.tif'),recursive=T,full.names=T)
 
 
 # Dates
-# yy <- substr(dfileSR,8,9)
-# mm <- substr(dfileSR,10,11)
-# dd <- substr(dfileSR,12,13)
 yy <- c(); mm <- c(); dd <- c()
 for(i in 1:length(dfileSR)){
   yy[i] <- substr(unlist(strsplit(dfileSR[i],'/'))[4],3,4)
@@ -64,21 +54,20 @@ for(i in 1:length(dfileSR)){
   dd[i] <- substr(unlist(strsplit(dfileSR[i],'/'))[4],7,8)
   
   dfileSR[i] <- unlist(strsplit(dfileSR[i],'/'))[4]
-  # dfileSR[i] <- unlist(strsplit(dfileSR[i],'/'))[4]
   dfileUDM2[i] <- unlist(strsplit(dfileUDM2[i],'/'))[4]
 }
 dates_all <- as.Date(paste(mm,'/',dd,'/',yy,sep=''),'%m/%d/%y')
 dates <- unique(dates_all)
 
-# # #
+# #
 # datesod <- order(dates)
-# # setwd('/projectnb/modislc/users/mkmoon/KoreaProject/figure/')
-# # png(filename='numofimage.png',width=7.5,height=6.5,unit='in',res=300)
+# setwd('/projectnb/modislc/users/mkmoon/mangrove/figures/')
+# png(filename='numofimage.png',width=7.5,height=6.5,unit='in',res=300)
 # par(oma=c(1,1,1,1),mar=c(4,4,1,1),mgp=c(2.5,1,0))
 # plot(dates[datesod],
 #      xlab='Number of Image',ylab='Dates',cex.axis=1.2,cex.lab=1.5)
-# # dev.off()
-# # #
+# dev.off()
+# #
 
 print(length(dates))
 
@@ -95,7 +84,7 @@ siteWin <- GetSiteShp(fileSR,cLong,cLat)
 # if(numSite==88 | numSite==89 | numSite==97 | numSite==101 | numSite==102){
 # imgBase <- GetBaseImg(fileSR,siteWin,outDir,save=T)
 # }else{
-  imgBase <- raster(paste0(outDir,'/base_image.tif'))
+imgBase <- raster(paste0(outDir,'/base_image.tif'))
 # }
 
 
@@ -110,7 +99,6 @@ foreach(dd=1:length(dates)) %dopar% {
   
 # for(dd in 1:length(dates)){
   
-  # imgMulti <- which(substr(dfileSR,6,13)==paste0(substr(dates[dd],1,4),substr(dates[dd],6,7),substr(dates[dd],9,10)))
   imgMulti <- which(substr(dfileSR,1,8)==paste0(substr(dates[dd],1,4),substr(dates[dd],6,7),substr(dates[dd],9,10)))
   
   imgVaild <- c()
@@ -146,36 +134,7 @@ foreach(dd=1:length(dates)) %dopar% {
         imgT <- raster(fileSR[ii],band=i)
         imgT <- crop(imgT,siteWin)
         
-        if(length(which(substr(dfileUDM,1,23)==str))==1 & length(which(substr(dfileUDM2,1,23)==str))==0){
-          log <- try({
-            udmT <- raster(fileUDM[which(substr(dfileUDM,1,23)==str)])
-            udmT <- crop(udmT,siteWin)
-          },silent=T)
-          if(inherits(log,'try-error')){ 
-            next
-          }else{
-            imgT[udmT>0] <- NA  
-          }
-        }else if(length(which(substr(dfileUDM,1,23)==str))==1 & length(which(substr(dfileUDM2,1,23)==str))==1){
-          log <- try({
-            udmT  <- raster(fileUDM[which(substr(dfileUDM,1,23)==str)])
-            udmT  <- crop(udmT,siteWin)
-          },silent=T)
-          if(inherits(log,'try-error')){ 
-            imgT <- imgT
-          }else{
-            imgT[udmT>0] <- NA
-          }
-          log <- try({
-            udm2T <- raster(fileUDM2[which(substr(dfileUDM2,1,23)==str)])
-            udm2T <- crop(udm2T,siteWin)  
-          },silent=T)
-          if(inherits(log,'try-error')){ 
-            imgT <- imgT
-          }else{
-            imgT[udm2T!=1] <- NA
-          }
-        }else if(length(which(substr(dfileUDM,1,23)==str))==0 & length(which(substr(dfileUDM2,1,23)==str))==1){
+        if(length(which(substr(dfileUDM2,1,23)==str))==1){
           log <- try({
             udmT <- raster(fileUDM2[which(substr(dfileUDM2,1,23)==str)],band=8)
             udmT <- crop(udmT,siteWin)

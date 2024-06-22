@@ -17,7 +17,7 @@ numSite <- as.numeric(args[3])
 
 
 ########################################
-params <- fromJSON(file='/usr3/graduate/mkmoon/GitHub/PlanetLSP/data_paper/PLSP_Parameters.json')
+params <- fromJSON(file='/usr3/graduate/mkmoon/GitHub/mangrove/input/PLCM_Parameters.json')
 source(params$setup$rFunctions)
 
 
@@ -28,8 +28,7 @@ geojsonDir <- params$setup$geojsonDir
 strSite <- list.dirs(params$setup$outDir,full.names=F,recursive=F)[numSite]
 print(strSite)
 
-# ckDir <- paste0(params$setup$outDir,strSite,'/chunk')
-ckDir <- paste0('/projectnb/modislc/users/mkmoon/Planet/rawImage/chunks/',strSite)
+ckDir <- paste0(params$setup$outDir,strSite,'/chunk')
 print(ckDir)
 
 
@@ -42,8 +41,8 @@ imgNum <- setValues(imgBase,1:numPix)
 numChunks <- params$setup$numChunks
 chunk <- numPix%/%numChunks
 
-nn <- sprintf('%03d',numSite)
-ptShp <- shapefile(paste0(params$setup$workDir,'Shape_file/pt_',nn,'.shp'))
+nn <- 1
+ptShp <- shapefile(paste0(params$setup$workDir,'shp/mg_pts_',nn,'.shp'))
 ptShp <- spTransform(ptShp,crs(imgBase))
 
 pixNums <- extract(imgNum,ptShp)
@@ -59,16 +58,7 @@ for(ppp in 1:4){
 
   load(file)
 
-  # repRo <- which(dates >= '2020-1-1' & dates <= '2020-7-1')
-  # repDa <- dates[which(dates >= '2020-1-1' & dates <= '2020-7-1')]+366
-  # 
-  # dates <- c(dates,repDa)
-  # 
-  # band1 <- cbind(band1,band1[,repRo])
-  # band2 <- cbind(band2,band2[,repRo])
-  # band3 <- cbind(band3,band3[,repRo])
-  # band4 <- cbind(band4,band4[,repRo])
-
+  ##
   blue  <- band1[pixNum%%chunk,]
   green <- band2[pixNum%%chunk,]
   red   <- band3[pixNum%%chunk,]
@@ -81,13 +71,12 @@ for(ppp in 1:4){
   qa_pars    <- params$qa_parameters
   
   
-  vi     <- 2.5*(nir - red) / (nir + 2.4*red + 1)
+  i1   <- (nir - red) / (nir + red) # NDVI
+  i2   <- 2.5*(nir - red) / (nir + 2.4*red + 1) # EVI2
+  i3   <- (nir - green) / (nir + green) # GNDVI
+  i4   <- (green - nir) / (green + nir) # NDWI
   
-  # # Potential water
-  # if( sum(vi<0,na.rm=T)/sum(!is.na(vi)) > pheno_pars$sumNegVIthresh & waterMask > pheno_pars$waterOccuThresh ){
-  #   return(rep(c(NA,rep(NA,10),4,rep(NA,10),4,NA),length(phenYrs)))} 
-  
-  plot(dates,vi)
+  plot(dates,i3)
   
   # # # Negative VIs
   # # vi[vi<0]   <- NA

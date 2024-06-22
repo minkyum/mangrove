@@ -532,10 +532,10 @@ calculateWeights <- function(smoothMat_Masked, numDaysFit, numYrs, pheno_pars) {
 
 
 #---------------------------------------------------------------------
-# Calculate pheno metrics for each pixel
+# Get feature metrics for each pixel
 # Code adapted by Minkyu Moon  
 #---------------------------------------------------------------------
-DoPhenologyPlanet <- function(blue, green, red, nir, dates, phenYrs, params, waterMask){
+GetFeatures <- function(blue, green, red, nir, dates, phenYrs, params){
   
   # Despike, calculate dormant value, fill negative VI values with dormant value
   log <- try({    
@@ -544,12 +544,10 @@ DoPhenologyPlanet <- function(blue, green, red, nir, dates, phenYrs, params, wat
     qa_pars    <- params$qa_parameters
     
     blue <- blue/10000; green <- green/10000; red <- red/10000; nir <- nir/10000
-    vi   <- 2.5*(nir - red) / (nir + 2.4*red + 1)
     
-    
-    # Potential water
-    if( sum(vi<0,na.rm=T)/sum(!is.na(vi)) > pheno_pars$sumNegVIthresh & waterMask > pheno_pars$waterOccuThreshLow ){
-      return(rep(c(NA,rep(NA,10),4,rep(NA,10),4,NA),length(phenYrs)))} 
+    i1   <- (nir - red) / (nir + red) # NDVI
+    i2   <- 2.5*(nir - red) / (nir + 2.4*red + 1) # EVI2
+    i3   <- (nir - green) / (nir + green) # GNDVI
     
     
     # Spikes check, and remove
@@ -831,52 +829,15 @@ DoPhenologyPlanet <- function(blue, green, red, nir, dates, phenYrs, params, wat
 #---------------------------------------------------------------------
 GetSiteInfo <- function(numSite, geojsonDir, params){
   
-  neon  <- params$setup$neon
-  amflx <- params$setup$amflx
-  
-  if(neon){
-    gjList <- list.files(path=paste0(geojsonDir,'/NEON'),pattern=glob2rx('*.geojson'))
-    gjListFull <- list.files(path=paste0(geojsonDir,'/NEON'),pattern=glob2rx('*.geojson'),full.names=T)
-    
-    gparams <- FROM_GeoJson(gjListFull[numSite])
-    
-    strSite <- paste(strsplit(strsplit(gjList[numSite],'[.]')[[1]][1],' ')[[1]],collapse='_')
-    try(strSite <- gsub("&", "and", strSite))
-    try(strSite <- gsub("'", "_", strSite))
-    if(numSite==45) strSite <- 'Utqiag__vik_NEON'
-    imgDir <- dir(path=paste0(params$setup$dataDir,'neon'),pattern=glob2rx(paste0('*',strSite,'*')),full.names=T)
-  }else if(amflx){
-    gjList <- list.files(path=paste0(geojsonDir,'/AMFLX'),pattern=glob2rx('*.geojson'))
-    gjListFull <- list.files(path=paste0(geojsonDir,'/AMFLX'),pattern=glob2rx('*.geojson'),full.names=T)
-    
-    gparams <- FROM_GeoJson(gjListFull[numSite])
-    
-    strSite <- paste(strsplit(strsplit(gjList[numSite],'[.]')[[1]][1],' ')[[1]],collapse='_')
-    try(strSite <- gsub("[(]", "_", strSite))
-    try(strSite <- gsub("[)]", "_", strSite))
-    try(strSite <- gsub("#", "_", strSite))
-    try(strSite <- gsub(",", "_", strSite))
-    
-    imgDir <- dir(path=paste0(params$setup$dataDir,'amflx'),pattern=glob2rx(paste0('*',strSite,'*')),full.names=T)
-  }else{
     gjList <- list.files(path=paste0(geojsonDir),pattern=glob2rx('*.geojson'))
     gjListFull <- list.files(path=paste0(geojsonDir),pattern=glob2rx('*.geojson'),full.names=T)
     
     gparams <- FROM_GeoJson(gjListFull[numSite])
     
     strSite <- paste(strsplit(strsplit(gjList[numSite],'[.]')[[1]][1],' ')[[1]],collapse='_')
-    if(numSite==92) strSite <- 'Univ._of_Mich'
-    try(strSite <- gsub("&", "and", strSite))
-    try(strSite <- gsub("'", "_", strSite))
-    try(strSite <- gsub("[(]", "_", strSite))
-    try(strSite <- gsub("[)]", "_", strSite))
-    try(strSite <- gsub("#", "_", strSite))
-    try(strSite <- gsub(",", "_", strSite))
     
     imgDir <- dir(path=params$setup$dataDir,pattern=glob2rx(paste0('*',strSite,'*')),full.names=T)
     
-    if(numSite==33) imgDir <- imgDir[1]
-  }
   
   temp <- unlist(strsplit(imgDir,'/'))
   strSite <- temp[length(temp)]
@@ -905,8 +866,8 @@ GetSiteShp <- function(fileSR, cLong, cLat){
   bb   <- SpatialPointsDataFrame(coords=xy,data=site,proj4string=geog_crs)
   bb   <- spTransform(bb,utm_crs)
   
-  x1 <- bb@coords[1] - 4000; x2 <- bb@coords[1] + 4000
-  y1 <- bb@coords[2] - 4000; y2 <- bb@coords[2] + 4000
+  x1 <- bb@coords[1] - 5500; x2 <- bb@coords[1] + 5500
+  y1 <- bb@coords[2] - 5500; y2 <- bb@coords[2] + 5500
   xCoor <- c(x1,x2,x2,x1); yCoor <- c(y1,y1,y2,y2); xym <- cbind(xCoor,yCoor)
   p   <- Polygon(xym); ps  <- Polygons(list(p),1); sps <- SpatialPolygons(list(ps))
   proj4string(sps) <- utm_crs; data <- data.frame(f=99.9)
