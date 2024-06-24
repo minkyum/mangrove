@@ -10,16 +10,4 @@ product_lyr,short_name,long_name,units,scale,offset,data_type,valid_min,valid_ma
 9,EVImax,Maximum EVI2 during vegetation cycle,-,0.0001,0,Int16,0,10000,32767,Maximum EVI2 during vegetation cycle
 10,EVIamp,EVI2 Amplitude during vegetation cycle ,-,0.0001,0,Int16,0,10000,32767,EVI2 Amplitude during vegetation cycle 
 11,EVIarea,Integrated EVI2 during vegetation cycle ,-,0.01,0,Int16,0,32766,32767,Integrated EVI2 during vegetation cycle 
-12,QA,Overall Quality Assurance for Cycle 1,-,1,0,Int16,1,4,32767,Overall Quality Assurance for Cycle 1
-13,OGI_2,Cycle 2 - Onset Greenness Increase (Date of 15% greenness increase),Day of year,1,0,Int16,-181,548,32767,Cycle 2 - Onset Greenness Increase (Date of 15% greenness increase)
-14,50PCGI_2,Cycle 2 - 50 Percent Greenness Increase (Date of 50% greenness increase) ,Day of year,1,0,Int16,-181,548,32767,Cycle 2 - 50 Percent Greenness Increase (Date of 50% greenness increase) 
-15,OGMx_2,Cycle 2 - Onset Greenness Maximum (Date of 90% greenness increase) ,Day of year,1,0,Int16,-181,548,32767,Cycle 2 - Onset Greenness Maximum (Date of 90% greenness increase) 
-16,Peak_2,Cycle 2 - Date of Cycle Peak,Day of year,1,0,Int16,1,366,32767,Cycle 2- Date of Cycle Peak
-17,OGD_2,Cycle 2 - Onset Greenness Decrease (Date of 10% greenness decrease) ,Day of year,1,0,Int16,-181,548,32767,Cycle 2 - Onset Greenness Decrease (Date of 10% greenness decrease) 
-18,50PCGD_2,Cycle 2 - 50 Percent Greenness Decrease (Date of 50% greenness decrease) ,Day of year,1,0,Int16,-181,548,32767,Cycle 2 - 50 Percent Greenness Decrease (Date of 50% greenness decrease) 
-19,OGMn_2,Cycle 2 - Onset Greenness Minimum (Date of 85% greenness decrease) ,Day of year,1,0,Int16,-181,548,32767,Cycle 2 - Onset Greenness Minimum (Date of 85% greenness decrease) 
-20,EVImax_2,Cycle 2 - Maximum EVI2 during vegetation cycle,-,0.0001,0,Int16,0,10000,32767,Cycle 2 - Maximum EVI2 during vegetation cycle
-21,EVIamp_2,Cycle 2 - EVI2 Amplitude during vegetation cycle ,-,0.0001,0,Int16,0,10000,32767,Cycle 2 - EVI2 Amplitude during vegetation cycle 
-22,EVIarea_2,Cycle 2 - Integrated EVI2 during vegetation cycle ,-,0.01,0,Int16,0,32766,32767,Cycle 2 - Integrated EVI2 during vegetation cycle 
-23,QA_2,Overall Quality Assurance for Cycle 2,-,1,0,Int16,1,4,32767,Overall Quality Assurance for Cycle 2
-24,numObs,Number of days with clear observations in calendar year,Number,1,0,Int16,0,366,32767,Number of clear observations in calendar year
+12,numObs,Number of days with clear observations in calendar year,Number,1,0,Int16,0,366,32767,Number of clear observations in calendar year

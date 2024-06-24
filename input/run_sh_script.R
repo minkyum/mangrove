@@ -39,15 +39,4 @@ setwd(paste0(params$setup$logDir,'04'))
 for(numSite in 1){
   system(paste('qsub -V -pe omp 4 -l h_rt=12:00:00 ',params$setup$rScripts,'run_script_04.sh ',numSite,sep=''))  
 }
-# Remove temporary files
-for(numSite in c(1:104)){
-  strSite <- list.dirs(params$setup$outDir,full.names=F,recursive=F)[numSite]
-  print(strSite)
-  # tempDir <- paste0(params$setup$outDir,strSite,'/chunk')
-  # system(paste0('rm -r ',tempDir))
-  tempFiles <- list.files(paste0(params$setup$workDir,'Product_010/',strSite),pattern=glob2rx('*xml'),recursive=T,full.names=T)
-  for(i in 1:length(tempFiles)){
-    system(paste0('rm -r ',tempFiles[i]))
-  }
-}
 
