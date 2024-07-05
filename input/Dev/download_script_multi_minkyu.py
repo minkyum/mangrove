@@ -209,9 +209,7 @@ def main(argv):
         sys.exit("{} does not exist.".format(output_dir))
     
     #PLANET_API_KEY = os.getenv('PL_API_KEY')
-    #PLANET_API_KEY = "3feab9a6cc1b4c1e8d65281025ad3382" #Mark
-    #PLANET_API_KEY = "PLAKab6ff8c62d8943d89e7f2270dab87fc2" #Gavin
-    PLANET_API_KEY = "PLAKa19cc5036e4b4f958ed287dbc7c70392"
+   
     
     # Setup the session
     session = requests.Session()
