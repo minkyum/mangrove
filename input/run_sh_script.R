@@ -34,9 +34,12 @@ for(numSite in 1){
 }
 
 
-## 04_Generate TIFF outputs
+## 04_Fit model
 setwd(paste0(params$setup$logDir,'04'))
 for(numSite in 1){
-  system(paste('qsub -V -pe omp 4 -l h_rt=12:00:00 ',params$setup$rScripts,'run_script_04.sh ',numSite,sep=''))  
+  nn <- sprintf('%03d',numSite)
+  for(yy in 1:6){
+    system(paste('qsub -V -pe omp 4 -l h_rt=12:00:00 ',params$setup$rScripts,'run_script_04.sh ',nn,yy,sep=''))  
+  }
 }
 
