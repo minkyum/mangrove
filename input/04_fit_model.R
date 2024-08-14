@@ -37,7 +37,6 @@ files <- list.files(path=ckPheDir,pattern=glob2rx('*.rda'),full.names=T)
 print(length(files))
 
 
-
 ########################################
 imgBase <- rast(paste0(params$setup$outDir,strSite,'/base_image.tif'))
 numPix <- ncol(imgBase)*nrow(imgBase)
@@ -46,15 +45,14 @@ numChunks <- params$setup$numChunks
 chunk <- numPix%/%numChunks
 
 
-
 ########################################
 # Load training data
-t1 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_1/training.shp')   # crop
-t2 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_2/training_2.shp') # buildings
-t3 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_3/training_3.shp') # terrestrial vegetation
-t4 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_4/training_4.shp') # shallow water
-t5 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_5/training_5.shp') # deep water
-t6 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_6/training_6.shp') # mangrove
+t1 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_1/training.shp')   # 1 mangrove
+t2 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_2/training_2.shp') # 2 deep water
+t3 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_3/training_3.shp') # 3 shallow water
+t4 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_4/training_4.shp') # 4 terrestrial vegetation
+t5 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_5/training_5.shp') # 5 buildings
+t6 <- vect('/projectnb/modislc/users/mkmoon/mangrove/PLCM/shp/training_6/training_6.shp') # 6 crop
 
 t1 <- project(t1,crs(imgBase)); t2 <- project(t2,crs(imgBase)); t3 <- project(t3,crs(imgBase))
 t4 <- project(t4,crs(imgBase)); t5 <- project(t5,crs(imgBase)); t6 <- project(t6,crs(imgBase))
@@ -85,7 +83,7 @@ pt62s <- sample(1:nrow(ptt),round(nrow(ptt)*0.5)); pt62  <- ptt[pt62s,]; pt63  <
 pheDir <- paste0(params$setup$outDir,strSite,'/feat')
 if (!dir.exists(pheDir)) {dir.create(pheDir)}
 
-Fmat <- matrix(NA,numPix,49) 
+Fmat <- matrix(NA,numPix,40) 
 
 for(i in 1:numChunks){
   cc <- sprintf('%03d',i)
@@ -98,7 +96,7 @@ for(i in 1:numChunks){
     
   chunkStart <- chunks[1];  chunkEnd <- chunks[length(chunks)]
     
-  Fmat[chunkStart:chunkEnd,] <- f_mat[,(58*(yToDo-1)+c(1:48,58))]
+  Fmat[chunkStart:chunkEnd,] <- f_mat[,(58*(yToDo-1)+c(1:40))]
   
  print(i)
 }
@@ -110,14 +108,35 @@ Fmat41 <- Fmat[pt41[,2],]; Fmat42 <- Fmat[pt42[,2],]; Fmat43 <- Fmat[pt43[,2],]
 Fmat51 <- Fmat[pt51[,2],]; Fmat52 <- Fmat[pt52[,2],]; Fmat53 <- Fmat[pt53[,2],]
 Fmat61 <- Fmat[pt61[,2],]; Fmat62 <- Fmat[pt62[,2],]; Fmat63 <- Fmat[pt63[,2],]
 
-lct <- c(rep(dim(Fmat11)[1],1),rep(dim(Fmat21)[1],2),rep(dim(Fmat31)[1],3),
-         rep(dim(Fmat41)[1],4),rep(dim(Fmat51)[1],5),rep(dim(Fmat61)[1],6))
+lct <- c(rep(1,dim(Fmat11)[1]),rep(2,dim(Fmat21)[1]),rep(3,dim(Fmat31)[1]),
+         rep(4,dim(Fmat41)[1]),rep(5,dim(Fmat51)[1]),rep(6,dim(Fmat61)[1]))
 
+
+########################################
+## Fit model
+# PCA to reduce dimensionallity
 mat_pca <- as.data.frame(rbind(Fmat11,Fmat21,Fmat31,Fmat41,Fmat51,Fmat61))
-pca <- princomp(~.,data=mat_pca,cor=T)
+pca <- princomp(~.,data=mat_pca,cor=T,na.action=na.exclude)
 
-pca$scores[1:5, ]
-plot(pca$scores[,1],pca$scores[,2],col=lct)
+plot(pca$sdev/sum(pca$sdev)*100)
+print(sum(as.numeric(pca$sdev/sum(pca$sdev)*100)[1:15])) # % of variance explained
 
-rand
+# input
+input <- as.data.frame(cbind(lct,pca$scores[,1:15]))
+input <- na.omit(input)
 
+# Fit 
+rf <- randomForest(input[,-1],as.factor(input[,1]))
+print(rf)
+
+
+########################################
+pre_pc <- predict(pca,as.data.frame(Fmat))
+cCase  <- complete.cases(pre_pc)
+pre_rf <- predict(rf,pre_pc[cCase,1:15])
+rf_val <- matrix(NA,numPix,1)
+rf_val[cCase] <- pre_rf 
+
+pre_map <- setValues(imgBase,rf_val)
+mycol <- c('#ff0004','#2535e1','#72dee0','#00ff22','#ff5cf7','#e1e300')
+plot(pre_map,col=mycol)
