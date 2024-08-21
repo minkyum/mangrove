@@ -147,9 +147,9 @@ pred_map <- setValues(imgBase,rf_val)
 
 
 #######################################
-# Plot
-mycol <- c('#ff0004','#2535e1','#72dee0','#00ff22','#ff5cf7','#e1e300')
-plot(pred_map,col=mycol)
+# # Plot
+# mycol <- c('#ff0004','#2535e1','#72dee0','#00ff22','#ff5cf7','#e1e300')
+# plot(pred_map,col=mycol)
 
 # Save
 pheDir <- paste0(params$setup$outDir,strSite,'/output')
